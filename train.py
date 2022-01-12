@@ -6,13 +6,14 @@ from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import AdaBoostRegressor
+import pickle
 
 df = pd.read_csv('dataset.csv').astype(float)
 
 # normalization
-m = df.mean()
+mean = df.mean()
 std = df.std()
-df = (df - m) / std
+df = (df - mean) / std
 
 y_rating = df['rating']
 y_cnt = df['rating_count']
@@ -30,17 +31,25 @@ ys = {'rating_train': y_train_rating, 'rating_test': y_test_rating,
       'rating_count_train': y_train_cnt, 'rating_count_test': y_test_cnt}
 
 models = [SVR, KNeighborsRegressor, AdaBoostRegressor, RandomForestRegressor]
+best_model = None
+best_MAE = 10e+100
 for model in models:
     print('='*50)
     print('Model:', model)
     for col in y_columns:
-        m = model()
-        m.fit(X_train, ys[col + '_train'])
+        current_model = model()
+        current_model.fit(X_train, ys[col + '_train'])
         
-        preds = m.predict(X_test)
+        preds = current_model.predict(X_test)
         print(col)
-        print('MAE:', np.mean(np.abs(ys[col + '_test'] - preds)) * std[col])
+        mae = np.mean(np.abs(ys[col + '_test'] - preds))
+        print('MAE:', mae * std[col])
         print('MSE:', np.mean((ys[col + '_test'] - preds) ** 2) * std[col])
+        
+        if mae < best_MAE:
+            best_MAE = mae
+            best_model = current_model
     
-preds = preds * std['rating'] + m['rating']
-y_test_cnt = y_test_cnt * std['rating'] + m['rating']
+
+with open('model.pkl', 'wb') as f:
+    pickle.dump(best_model, f)

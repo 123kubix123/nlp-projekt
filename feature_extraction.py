@@ -5,7 +5,7 @@ from collections import Counter
 import spacy
 import math
 
-nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger', quiet=True)
 NER_MODEL = spacy.load('en_core_web_sm')
 
 def get_frequency_from_tokens(tokens, threshold='auto'):
