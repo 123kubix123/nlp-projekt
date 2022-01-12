@@ -169,12 +169,16 @@ class FilterColumnsByStd(Operation):
         return df
     
 class ApplyFunctionToRows(Operation):
-    def __init__(self, func, *args, to_series=False,
+    def __init__(self, func, *args, disregard_columns=None, to_series=False,
                  to_dtype=None, concat_axis=1, **kwargs):
         super().__init__()
         
         self.func = func
-        self.to_series =to_series
+        self.to_series = to_series
+        if disregard_columns is None:
+            self.disregard_columns = []
+        else:
+            self.disregard_columns = disregard_columns
         self.to_dtype = to_dtype
         self.concat_axis = concat_axis
         if args is None:
@@ -188,7 +192,7 @@ class ApplyFunctionToRows(Operation):
         
     def __call__(self, df):
         
-        columns = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+        columns = [col for col in df.columns if col not in self.disregard_columns and pd.api.types.is_numeric_dtype(df[col])]
         results = df[columns].apply(self.func, axis=1, *self.args, **self.kwargs)
         if self.to_series:
             results = results.apply(pd.Series)
@@ -228,6 +232,7 @@ if __name__ == '__main__':
         FilterColumnsByStd(min_std=0.0),
         ApplyFunctionToRows(
             feature_extraction.get_ratios,
+            disregard_columns=text_columns + ['rating', 'rating_count'],
             to_series=True,
             to_dtype=float,
             concat_axis=1
