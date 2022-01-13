@@ -59,7 +59,7 @@ export default {
     methods: {
       validate () {
         if(this.$refs.form.validate()){
-          axios.post('/user', {
+          axios.post('/api/prediction', {
             title: this.title,
             desc: this.desc,
           })
@@ -78,13 +78,6 @@ export default {
           .catch( (error) =>{
             console.log(error);
             this.$store.dispatch('showNotification', {text:'Coś poszło nie tak ;(', timeout: 2000, color: 'red'});
-            this.$store.commit('addResponse', {
-      rating: 3,
-      rating_count: 8,
-      title: this.title,
-      desc: this.desc
-      })
-            router.push('result')
           });
         }
       },
