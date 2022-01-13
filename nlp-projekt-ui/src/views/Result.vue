@@ -1,47 +1,63 @@
 <template>
   <div class="mx-6">
+    <router-link to="/">
+    <v-icon class="mr-2 " large>mdi-arrow-left</v-icon>
+    </router-link>
     <h2>Wynik</h2>
     <v-row class="mt-2">
-      <v-col cols="2" class="my-2">Predykcja opini: {{rating}}</v-col>
+      <v-col cols="3" class="my-2">Predykcja opini: {{$store.state.response.rating}}</v-col>
       <v-col>
     <v-rating
-      v-model="rating"
+      v-model="$store.state.response.rating"
       background-color="orange lighten-3"
       color="orange"
       readonly
     ></v-rating>
       </v-col>
     </v-row>
-    <p class="mt-4 mb-6">Predykcja ilości opini: {{rating_count}}</p>
+    <p class="mt-4 mb-6">Predykcja ilości opini: {{$store.state.response.rating_count}}</p>
         <v-text-field
-      v-model="title"
+      v-model="$store.state.response.title"
       label="Nazwa Przedmiotu"
-      disabled
+      readonly
     ></v-text-field>
 
     <v-textarea
-      v-model="desc"
+      v-model="$store.state.response.desc"
       label="Opis"
-      disabled
+      readonly
+      auto-grow
     ></v-textarea>
 
   </div>
 </template>
 
 <script>
-
+import router from "../router"
+import store from "../store"
 export default {
   name: 'Result',
   components: {
   },
-  data: () => ({
-      rating: 3,
-      rating_count: 8,
-      title: 'Lorem ipsum dolor sit amet',
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque et magna elit. Sed in arcu ac est pretium tincidunt. Sed in placerat augue. Nulla quis mauris vel ante porta molestie eget a nisi. Vestibulum rutrum nisi sed facilisis finibus. In hac habitasse platea dictumst. Nulla facilisi. Maecenas erat lacus, pharetra at tortor ac, scelerisque malesuada nulla. Nullam mattis condimentum tincidunt. Etiam eu massa condimentum, rhoncus dolor nec, lobortis massa. Nam tempor pellentesque est quis gravida. Pellentesque felis est, faucibus vel lacinia vel, sagittis et urna.',
-    }),
+  data: () => ({}),
 
     methods: {
     },
+    beforeRouteEnter(to, from, next) {
+      console.log(from)
+      if(!store.state.response){
+        store.dispatch('showNotification', {text:'Nie załadowano danych.', timeout: 2000, color: 'red'})
+        if(from.path !== '/' || from.name === null){
+          router.push('/')}
+      }
+      else{
+        next()
+      }
+    },
+    beforeRouteLeave(to, from, next) {
+      console.log('leave')
+      this.$store.commit('removeResponse')
+      next()
+    }
 }
 </script>

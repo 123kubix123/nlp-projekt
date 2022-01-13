@@ -17,7 +17,8 @@
       v-model="desc"
       :rules="descRules"
       label="Opis"
-      required
+      required      
+      auto-grow
     ></v-textarea>
 
     <v-btn
@@ -34,6 +35,7 @@
 </template>
 
 <script>
+const axios = require('axios');
 import router from '../router'
 export default {
   name: 'Home',
@@ -46,7 +48,7 @@ export default {
         v => !!v || 'Tytuł jest wymagany',
         v => (v && v.length >= 5) || 'Tytuł musi mieć minimum 6 znaków',
       ],
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque et magna elit. Sed in arcu ac est pretium tincidunt. Sed in placerat augue. Nulla quis mauris vel ante porta molestie eget a nisi. Vestibulum rutrum nisi sed facilisis finibus. In hac habitasse platea dictumst. Nulla facilisi. Maecenas erat lacus, pharetra at tortor ac, scelerisque malesuada nulla. Nullam mattis condimentum tincidunt. Etiam eu massa condimentum, rhoncus dolor nec, lobortis massa. Nam tempor pellentesque est quis gravida. Pellentesque felis est, faucibus vel lacinia vel, sagittis et urna.',
+      desc: 'Lorem ipsum dolor sit amet, <b>consectetur</b> adipiscing elit. Pellentesque et magna elit. Sed in arcu ac est pretium tincidunt. Sed in placerat augue. Nulla quis mauris vel ante porta molestie eget a nisi. Vestibulum rutrum nisi sed facilisis finibus. In hac habitasse platea dictumst. Nulla facilisi. Maecenas erat lacus, pharetra at tortor ac, scelerisque malesuada nulla. Nullam mattis condimentum tincidunt. Etiam eu massa condimentum, rhoncus dolor nec, lobortis massa. Nam tempor pellentesque est quis gravida. Pellentesque felis est, faucibus vel lacinia vel, sagittis et urna.',
       descRules: [
         v => !!v || 'Opis jest wymagany',
         v => (v && v.length >= 100) || 'Opis musi mieć minimum 100 znaków',
@@ -57,7 +59,33 @@ export default {
     methods: {
       validate () {
         if(this.$refs.form.validate()){
-          router.push('result')
+          axios.post('/user', {
+            title: this.title,
+            desc: this.desc,
+          })
+          .then((response) =>{
+            if(response.data){
+              this.title = ''
+              this.desc = ''
+              this.$store.commit('addResponse', response.data)
+              router.push('result')
+              console.log(response.data);
+            }
+            else{
+              throw "Data not loaded"
+              }
+          })
+          .catch( (error) =>{
+            console.log(error);
+            this.$store.dispatch('showNotification', {text:'Coś poszło nie tak ;(', timeout: 2000, color: 'red'});
+            this.$store.commit('addResponse', {
+      rating: 3,
+      rating_count: 8,
+      title: this.title,
+      desc: this.desc
+      })
+            router.push('result')
+          });
         }
       },
     },

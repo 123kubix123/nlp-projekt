@@ -17,7 +17,7 @@
         <v-row>
           <v-col>
             <v-sheet
-              min-height="90vh"
+              min-height="88vh"
               rounded="lg"
               class="pa-4"
             >
@@ -27,15 +27,18 @@
         </v-row>
       </v-container>
     </v-main>
+    <Notification/>
   </v-app>
 </template>
 
 <script>
 import Authors from '@/components/Authors.vue'
+import Notification from '@/components/Notification.vue'
   export default {
     name: 'App',
     components: {
-      Authors
+      Authors,
+      Notification
     },
 
     data: () => ({
@@ -52,14 +55,12 @@ import Authors from '@/components/Authors.vue'
   color: #2c3e50;
 }
 
-.v-app-bar {
+.router-link-active {
 
-  a {
     text-decoration: none;
 
     //&.router-link-exact-active {
     //  color: #42b983;
     //}
-  }
 }
 </style>
