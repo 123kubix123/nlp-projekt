@@ -1,11 +1,39 @@
-
 from flask import Flask, request, send_from_directory, jsonify, Response
 import json
 import pickle
-from .. import processing
-from .. import feature_extraction
+
+import os
+import sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir) 
+
+import processing
+import feature_extraction
+import pandas as pd
+import numpy as np
 
 app = Flask(__name__)
+
+#load models
+with open('model_rating.pkl', 'rb') as f:
+    model_rating = pickle.load(f)
+    
+with open('model_rating_count.pkl', 'rb') as f:
+    model_count = pickle.load(f)
+    
+#load scalers
+with open('data_scaler.pkl', 'rb') as f:
+    data_scaler = pickle.load(f)
+    
+with open('output_scaler_rating.pkl', 'rb') as f:
+    output_scaler_rating = pickle.load(f)
+    
+with open('output_scaler_rating_count.pkl', 'rb') as f:
+    output_scaler_count = pickle.load(f)
+    
+columns = pd.read_csv('../dataset.csv').drop(columns=['rating', 'rating_count']).columns
   
 @app.route('/')
 def index():
@@ -23,6 +51,9 @@ def prediction():
         desc = product['desc']
         if(title and desc):
             # Use model to get prediction here
+            product['desc_text'] = product.pop('desc')
+            product['photos_count'] = 0
+            
             seq = processing.Sequencer([
                 processing.DictToDF(),
                 processing.ApplyFunctionToColumns(
@@ -57,14 +88,26 @@ def prediction():
                 processing.DropColumns(drop_cols=['desc_text', 'title']),
             ])
             features = seq(product)
-            with open('model.pkl', 'rb') as f:
+            features = {col: features[col] for col in features.keys() if col in columns}
+            for col in columns:
+                if col not in features:
+                    features[col] = 0
+            features = pd.DataFrame([features]).to_numpy()
+            features = data_scaler.transform(features)
+            
+            rating_pred = model_rating.predict(features)[0]
+            count_pred = model_count.predict(features)[0]
+            
+            rating_pred = rating_pred * output_scaler_rating.scale_ + output_scaler_rating.mean_
+            count_pred = count_pred * output_scaler_count.scale_ + output_scaler_count.mean_
                 
-                model = pickle.load(f)
-                preds = model.predict(features)
-                
-
+            rating_pred = np.round(rating_pred.squeeze()[()], decimals=3)
+            count_pred = np.round(count_pred.squeeze()[()], decimals=3)
+            
+            rating_pred = np.clip(rating_pred, 0, 5)
+            count_pred = np.clip(count_pred, 0, None)
             # Return JSON object with original title, desc and prediction for rating and rating_count
-            result = {'title': title, 'desc': desc, 'rating': 3, 'rating_count': 8}
+            result = {'title': title, 'desc': desc, 'rating': rating_pred, 'rating_count': count_pred}
             return jsonify(result)
         else:
             return Response(status=400)

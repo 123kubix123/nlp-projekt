@@ -67,7 +67,10 @@ class DictToDF(Operation):
             self.numeric_cols = numeric_cols
         
     def __call__(self, d):
-        df = pd.DataFrame(d)
+        try:
+            df = pd.DataFrame(d)
+        except ValueError:
+            df = pd.DataFrame([d])
             
         for col in self.numeric_cols:
             df[col] = df[col].str.replace(',', '').astype(float)
