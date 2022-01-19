@@ -33,7 +33,7 @@ with open('output_scaler_rating.pkl', 'rb') as f:
 with open('output_scaler_rating_count.pkl', 'rb') as f:
     output_scaler_count = pickle.load(f)
     
-columns = pd.read_csv('../dataset.csv').drop(columns=['rating', 'rating_count']).columns
+columns = pd.read_csv('../dataset.csv').drop(columns=['rating', 'rating_count', 'title', 'desc_text']).columns
   
 @app.route('/')
 def index():

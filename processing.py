@@ -257,7 +257,7 @@ if __name__ == '__main__':
                                min_occurances=MIN_NER_IN_CORPUS
                                ),
         FillNoneValues(replace_null_with=0),
-        DropColumns(drop_cols=text_columns),
+        #DropColumns(drop_cols=text_columns),
         SaveToCsv('dataset.csv')
         ])
     

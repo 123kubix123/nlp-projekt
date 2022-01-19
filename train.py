@@ -10,19 +10,26 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 
-df = pd.read_csv('dataset.csv').astype(float)
+df = pd.read_csv('dataset.csv')
+y_columns = ['rating', 'rating_count']
+text_columns = ['title', 'desc_text']
 
+text_df = df[[*text_columns, 'photos_count']]
+df = df.drop(columns=text_columns)
+
+df = df.astype(float)
 y_rating = df['rating']
 y_cnt = df['rating_count']
-y_columns = ['rating', 'rating_count']
 X = df.drop(columns=y_columns)
 
 X = X.to_numpy()
 y_rating = y_rating.to_numpy()
 y_cnt = y_cnt.to_numpy()
 
-X_train, X_test, y_train_rating, y_test_rating, y_train_cnt, y_test_cnt = train_test_split(
-    X, y_rating, y_cnt, test_size=0.2, random_state=42)
+X_train, X_test, y_train_rating, y_test_rating, y_train_cnt, y_test_cnt, _, text_test = train_test_split(
+    X, y_rating, y_cnt, text_df, test_size=0.2, random_state=42)
+
+text_test.to_excel('test_text.xlsx', index=0)
 
 # scaling
 data_scaler = StandardScaler()
