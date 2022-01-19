@@ -43,12 +43,12 @@ export default {
   },
   data: () => ({
       valid: true,
-      title: 'Lorem ipsum dolor sit amet',
+      title: '',
       titleRules: [
         v => !!v || 'Tytuł jest wymagany',
         v => (v && v.length >= 5) || 'Tytuł musi mieć minimum 6 znaków',
       ],
-      desc: 'Lorem ipsum dolor sit amet, <b>consectetur</b> adipiscing elit. Pellentesque et magna elit. Sed in arcu ac est pretium tincidunt. Sed in placerat augue. Nulla quis mauris vel ante porta molestie eget a nisi. Vestibulum rutrum nisi sed facilisis finibus. In hac habitasse platea dictumst. Nulla facilisi. Maecenas erat lacus, pharetra at tortor ac, scelerisque malesuada nulla. Nullam mattis condimentum tincidunt. Etiam eu massa condimentum, rhoncus dolor nec, lobortis massa. Nam tempor pellentesque est quis gravida. Pellentesque felis est, faucibus vel lacinia vel, sagittis et urna.',
+      desc: '',
       descRules: [
         v => !!v || 'Opis jest wymagany',
         v => (v && v.length >= 100) || 'Opis musi mieć minimum 100 znaków',
