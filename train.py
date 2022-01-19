@@ -51,5 +51,5 @@ for model in models:
             best_model = current_model
     
 
-with open('model.pkl', 'wb') as f:
+with open('nlp-projekt-backend/model.pkl', 'wb') as f:
     pickle.dump(best_model, f)

@@ -32,6 +32,8 @@ class Sequencer:
             time_taken = time.time() - start
             self.time_taken += time_taken
             print(f'Step {i}/{len(self.seq)} ({op}) completed, time elapsed: {time_taken} seconds\n')
+        
+        print(f'Finished processing. Total time taken: {self.time_taken}')
         return data
     
 class Operation(ABC):
